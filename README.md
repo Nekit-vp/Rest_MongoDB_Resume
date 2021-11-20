@@ -1,4 +1,4 @@
-#2 Spring Boot Application + MongoDB + Docker compile
+#2 Spring Boot Application + MongoDB + Docker compose
 ---
 How get start?
 
