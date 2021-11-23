@@ -4,7 +4,6 @@ package com.example.restMongoDB.controller;
 import com.example.restMongoDB.model.Resume;
 import com.example.restMongoDB.resource.ResumeResource;
 import com.example.restMongoDB.service.ResumeService;
-import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +11,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/resume")
-@AllArgsConstructor
 public class ResumeController {
 
     private final ResumeService resumeService;
+
+    public ResumeController(ResumeService resumeService) {
+        this.resumeService = resumeService;
+    }
 
     @GetMapping
     public ResponseEntity<List<ResumeResource>> getAllResume() {

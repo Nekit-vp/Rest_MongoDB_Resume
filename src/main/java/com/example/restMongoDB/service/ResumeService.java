@@ -3,48 +3,54 @@ package com.example.restMongoDB.service;
 import com.example.restMongoDB.model.Resume;
 import com.example.restMongoDB.resource.ResumeResource;
 import com.example.restMongoDB.repository.ResumeRepository;
-import lombok.AllArgsConstructor;
+import mapper.SimpleResumeResourceMapper;
+import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-@AllArgsConstructor
 @Service
 public class ResumeService {
 
     private final ResumeRepository repository;
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final SimpleResumeResourceMapper mapper
+            = Mappers.getMapper(SimpleResumeResourceMapper.class);
+
+    public ResumeService(ResumeRepository repository) {
+        this.repository = repository;
+    }
 
     public List<ResumeResource> getAllResume() {
         List<Resume> resumeList = repository.findAll();
         return resumeList.stream()
-                .map(ResumeResource::new)
+                .map(mapper::resumeToResource)
                 .collect(Collectors.toList());
     }
 
     public ResumeResource getResume(String id) {
         Optional<Resume> resume = repository.findById(id);
-        return new ResumeResource(resume.get());
+        return mapper.resumeToResource(resume.get());
     }
 
 
     public ResumeResource createResume(ResumeResource resumeResource) {
         resumeResource.setFavoriteFilm(String.valueOf(getIdByFilm(resumeResource.getFavoriteFilm())));
         resumeResource.setId(null);
-        Resume resume = resumeResource.getModel();
-        return new ResumeResource(repository.save(resume));
+        Resume resume = mapper.resourceToResume(resumeResource);
+        return mapper.resumeToResource(repository.save(resume));
     }
 
     public ResumeResource updateResume(String id, ResumeResource resumeResource) {
-        Resume resume = resumeResource.getModel();
+        Resume resume = mapper.resourceToResume(resumeResource);
         resume.setId(id);
         resume.setFavoriteFilm(String.valueOf(getIdByFilm(resume.getFavoriteFilm())));
-        return new ResumeResource(repository.save(resume));
+        return mapper.resumeToResource(repository.save(resume));
     }
 
     public String deleteResume(String id) {
